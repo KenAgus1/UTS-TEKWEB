@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Menu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-makanan img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .card-makanan {
+            margin-bottom: 25px;
+        }
+        #tabel-pesanan {
+            margin-top: 30px;
+        }
+        #tombol-checkout {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Food Menu</h2>
+        <div class="row" id="menu-makanan">
+        </div>
+
+        <!-- Tabel Pesanan -->
+        <h3 class="mt-5"></h3>
+        <table class="table table-bordered" id="tabel-pesanan">
+            <thead>
+                <tr>
+                    <th>Food item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="list-pesanan">
+            </tbody>
+        </table>
+
+        <!-- Grand Total dan Checkout -->
+        <div class="d-flex justify-content-between">
+            <h4>Grand Total: $<span id="total-harga">0.00</span></h4>
+            <button class="btn btn-success" id="tombol-checkout">Checkout</button>
+        </div>
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Js -->
+    <script>
+        // Daftar makanan
+        let menu = [
+            {nama: "Pizza", harga: 12.99, gambar: "Pizza.jpg"},
+            {nama: "Burger", harga: 8.99, gambar: "Burger.jpg"},
+            {nama: "Pasta", harga: 17.01, gambar: "Pasta.jpg"},
+            {nama: "Milk tea", harga: 3.58, gambar: "Milk tea.jpg"},
+            {nama: "Orange Juice", harga: 0.49, gambar: "Orangejuice.jpg"},
+            {nama: "Ice Cream", harga: 1.39, gambar: "Ice Creamm.jpg"}
+        ];
+
+        let pesanan = []; //  Menyimpan pesanan
+        let menuContainer = document.getElementById('menu-makanan');
+        let tabelPesanan = document.getElementById('list-pesanan');
+        let totalHarga = document.getElementById('total-harga');
+
+        // Menampilkan daftar makanan
+        menu.forEach(function(item, index) {
+            let kartu = document.createElement('div');
+            kartu.className = 'col-lg-4 col-md-6 card-makanan';
+            kartu.innerHTML = `
+                <div class="card">
+                    <img src="${item.gambar}" class="card-img-top" alt="${item.nama}">
+                    <div class="card-body">
+                        <h5 class="card-title">${item.nama}</h5>
+                        <p class="card-text">$${item.harga.toFixed(2)}</p>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-primary" onclick="tambah(${index})">+</button>
+                            <button class="btn btn-danger" onclick="kurangi(${index})">-</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            menuContainer.appendChild(kartu);
+        });
+
+        // Fungsi  memperbarui tabel Pesanan
+        function perbaruiPesanan() {
+            tabelPesanan.innerHTML = '';
+            let totalSemua = 0;
+
+            pesanan.forEach(function(item) {
+                let totalItem = (item.harga * item.jumlah).toFixed(2);
+                totalSemua += parseFloat(totalItem);
+
+                let baris = document.createElement('tr');
+                baris.innerHTML = `
+                    <td>${item.nama}</td>
+                    <td>${item.jumlah}</td>
+                    <td>$${item.harga.toFixed(2)}</td>
+                    <td>$${totalItem}</td>
+                `;
+                tabelPesanan.appendChild(baris);
+            });
+
+            totalHarga.textContent = totalSemua.toFixed(2);
+        }
+
+        // Fungsi untuk menambah Pesanan
+        function tambah(index) {
+            let itemAda = pesanan.find(function(pesan) {
+                return pesan.nama === menu[index].nama;
+            });
+            if (itemAda) {
+                itemAda.jumlah++;
+            } else {
+                pesanan.push({ ...menu[index], jumlah: 1 });
+            }
+            perbaruiPesanan();
+        }
+
+        // Fungsi untuk mengurangi Pesanan
+        function kurangi(index) {
+            let itemAda = pesanan.find(function(pesan) {
+                return pesan.nama === menu[index].nama;
+            });
+            if (itemAda) {
+                if (itemAda.jumlah > 1) {
+                    itemAda.jumlah--;
+                } else {
+                    pesanan = pesanan.filter(function(pesan) {
+                        return pesan.nama !== itemAda.nama;
+                    });
+                }
+            }
+            perbaruiPesanan();
+        }
+
+        // Fungsi untuk melakukan checkout
+        document.getElementById('tombol-checkout').addEventListener('click', function() {
+            // Menampilkan Pemberitahuan bahwa Pesanan sudah final 
+            alert("Pesanan Sudah Final   Total: $" + totalHarga.textContent);
+            // Mereset pesanan
+            pesanan = [];
+            perbaruiPesanan();
+        });
+    </script>
+</body>
+</html>
